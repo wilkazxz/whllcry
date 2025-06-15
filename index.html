@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CF by Wilka | Cloudflare Proxy Panel</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }.container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+label {
+  display: block;
+  margin-top: 20px;
+  color: #444;
+  font-weight: 600;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  margin-top: 30px;
+  padding: 14px;
+  background: #1e90ff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  background: #0d74d1;
+}
+
+.footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 12px;
+  color: #aaa;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CF by Wilka</h1>
+    <p>Kelola DNS + Proxy Cloudflare dengan mudah</p>
+    <form method="POST" action="proses.php">
+      <label for="name">Subdomain (contoh: sub.domain.com)</label>
+      <input type="text" name="name" id="name" required><label for="content">IP Address / Target (contoh: 192.0.2.1)</label>
+  <input type="text" name="content" id="content" required>
+
+  <label for="type">Jenis Record</label>
+  <select name="type" id="type">
+    <option value="A">A</option>
+    <option value="CNAME">CNAME</option>
+  </select>
+
+  <button type="submit">Tambahkan ke Cloudflare</button>
+</form>
+<div class="footer">
+  Dibuat dengan 💙 oleh Wilka
+</div>
+
+  </div>
+</body>
+      </html>
