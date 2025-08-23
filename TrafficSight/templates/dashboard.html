@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-primary text-white rounded p-4">
+                <h1 class="display-6 mb-3">
+                    <i class="fas fa-tachometer-alt me-3"></i>
+                    Welcome back, {{ current_user.username }}!
+                    {% if current_user.is_verified %}
+                    <i class="fas fa-check-circle ms-2"></i>
+                    {% endif %}
+                </h1>
+                <p class="lead mb-0">Level {{ current_user.level }} • {{ current_user.points }} points</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Stats -->
+        <div class="col-lg-8">
+            <!-- Quick Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-newspaper fa-2x text-primary mb-2"></i>
+                            <h4 class="mb-1">{{ user_posts }}</h4>
+                            <small class="text-muted">Posts</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-comments fa-2x text-success mb-2"></i>
+                            <h4 class="mb-1">{{ user_comments }}</h4>
+                            <small class="text-muted">Comments</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                            <h4 class="mb-1">{{ user_badges }}</h4>
+                            <small class="text-muted">Badges</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-star fa-2x text-info mb-2"></i>
+                            <h4 class="mb-1">{{ current_user.level }}</h4>
+                            <small class="text-muted">Level</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bell me-2"></i>Recent Notifications
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                        <div class="d-flex align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="me-3">
+                                {% if notification.type == 'comment' %}
+                                <i class="fas fa-comment text-primary"></i>
+                                {% elif notification.type == 'like' %}
+                                <i class="fas fa-heart text-danger"></i>
+                                {% elif notification.type == 'message' %}
+                                <i class="fas fa-envelope text-info"></i>
+                                {% elif notification.type == 'badge' %}
+                                <i class="fas fa-trophy text-warning"></i>
+                                {% else %}
+                                <i class="fas fa-info-circle text-muted"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="mb-0">{{ notification.content }}</p>
+                                <small class="text-muted">{{ notification.created_at.strftime('%B %d at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('notifications') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View All
+                            </a>
+                        </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No new notifications</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Level Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set progress = (current_user.points % 100) %}
+                    {% set next_level_points = 100 - progress %}
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Level {{ current_user.level }}</span>
+                        <span>Level {{ current_user.level + 1 }}</span>
+                    </div>
+                    
+                    <div class="progress mb-2">
+                        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    
+                    <p class="text-center mb-0">
+                        <strong>{{ current_user.points }}</strong> points total
+                        • <strong>{{ next_level_points }}</strong> points to next level
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-rocket me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_post') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Create Post
+                        </a>
+                        <a href="{{ url_for('upload_video') }}" class="btn btn-info btn-sm">
+                            <i class="fas fa-video me-2"></i>Upload Video
+                        </a>
+                        <a href="{{ url_for('create_poll') }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-poll me-2"></i>Create Poll
+                        </a>
+                        <a href="{{ url_for('global_chat') }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-comments me-2"></i>Global Chat
+                        </a>
+                        <a href="{{ url_for('games') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-gamepad me-2"></i>Play Games
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>Top Users
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if top_users %}
+                        {% for user in top_users %}
+                        <div class="d-flex align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="me-3">
+                                {% if loop.index == 1 %}
+                                <i class="fas fa-crown text-warning"></i>
+                                {% elif loop.index == 2 %}
+                                <i class="fas fa-medal text-secondary"></i>
+                                {% elif loop.index == 3 %}
+                                <i class="fas fa-medal text-warning"></i>
+                                {% else %}
+                                <span class="badge bg-light text-dark">{{ loop.index }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <a href="{{ url_for('view_profile', username=user.username) }}" class="text-decoration-none">
+                                            {{ user.username }}
+                                            {% if user.is_verified %}
+                                            <i class="fas fa-check-circle text-primary ms-1"></i>
+                                            {% endif %}
+                                        </a>
+                                    </span>
+                                    <small class="text-muted">{{ user.points }} pts</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-trophy fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No users yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

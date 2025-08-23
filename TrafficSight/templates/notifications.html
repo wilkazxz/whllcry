@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-bell me-2"></i>Notifications
+        </h2>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    {% if notifications %}
+    <div class="row">
+        <div class="col-12">
+            {% for notification in notifications %}
+            <div class="card mb-3 {% if not notification.is_read %}border-primary{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            {% if notification.type == 'comment' %}
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-comment text-white"></i>
+                            </div>
+                            {% elif notification.type == 'like' %}
+                            <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-heart text-white"></i>
+                            </div>
+                            {% elif notification.type == 'message' %}
+                            <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-envelope text-white"></i>
+                            </div>
+                            {% elif notification.type == 'badge' or notification.type == 'achievement' %}
+                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-trophy text-white"></i>
+                            </div>
+                            {% else %}
+                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-info-circle text-white"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <p class="mb-1">{{ notification.content }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ notification.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                    </small>
+                                </div>
+                                
+                                {% if not notification.is_read %}
+                                <span class="badge bg-primary">New</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Action buttons for specific notification types -->
+                            {% if notification.related_post_id %}
+                            <div class="mt-2">
+                                <a href="{{ url_for('view_post', id=notification.related_post_id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Post
+                                </a>
+                            </div>
+                            {% elif notification.related_user_id and notification.type == 'message' %}
+                            <div class="mt-2">
+                                <a href="{{ url_for('private_chat', username=notification.related_user.username) }}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-reply me-1"></i>Reply
+                                </a>
+                            </div>
+                            {% elif notification.related_user_id %}
+                            <div class="mt-2">
+                                <a href="{{ url_for('view_profile', username=notification.related_user.username) }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-user me-1"></i>View Profile
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Pagination could be added here if needed -->
+    <div class="text-center mt-4">
+        <p class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            All notifications are automatically marked as read when you view them.
+        </p>
+    </div>
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-bell-slash fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted">No notifications yet</h4>
+        <p class="text-muted">When you receive likes, comments, or messages, they'll appear here.</p>
+        
+        <div class="mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                <i class="fas fa-home me-1"></i>Explore Posts
+            </a>
+            <a href="{{ url_for('global_chat') }}" class="btn btn-outline-primary">
+                <i class="fas fa-comments me-1"></i>Join Chat
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

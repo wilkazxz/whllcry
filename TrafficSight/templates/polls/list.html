@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Polls - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-poll me-2"></i>Community Polls
+        </h2>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_poll') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create Poll
+        </a>
+        {% endif %}
+    </div>
+
+    {% if polls %}
+    <div class="row">
+        {% for poll in polls %}
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            {% if poll.creator.profile_image %}
+                            <img src="{{ url_for('static', filename=poll.creator.profile_image) }}" alt="Profile" class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
+                            {% else %}
+                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="fas fa-user text-white" style="font-size: 0.8em;"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div>
+                                <small class="fw-bold">
+                                    <a href="{{ url_for('view_profile', username=poll.creator.username) }}" class="text-decoration-none">
+                                        {{ poll.creator.username }}
+                                        {% if poll.creator.is_verified %}
+                                        <i class="fas fa-check-circle text-primary ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </small>
+                                <br>
+                                <small class="text-muted">{{ poll.created_at.strftime('%m/%d/%Y') }}</small>
+                            </div>
+                        </div>
+                        
+                        {% if not poll.is_active %}
+                        <span class="badge bg-secondary">Closed</span>
+                        {% elif poll.ends_at and poll.ends_at < poll.created_at.now() %}
+                        <span class="badge bg-warning">Expiring Soon</span>
+                        {% else %}
+                        <span class="badge bg-success">Active</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ poll.question }}</h5>
+                    
+                    <!-- Quick Poll Stats -->
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <small class="text-muted">Options</small>
+                            <div class="fw-bold">{{ poll.options.count() }}</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Votes</small>
+                            <div class="fw-bold">{{ poll.options.join('votes').count() or 0 }}</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Days Active</small>
+                            <div class="fw-bold">{{ (poll.created_at.now() - poll.created_at).days }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview of options -->
+                    <div class="mb-3">
+                        {% for option in poll.options.limit(2) %}
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <span class="text-muted">{{ option.text }}</span>
+                            <span class="badge bg-light text-dark">{{ option.votes.count() }}</span>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if poll.options.count() > 2 %}
+                        <div class="text-center">
+                            <small class="text-muted">+{{ poll.options.count() - 2 }} more option{{ 's' if poll.options.count() - 2 != 1 else '' }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if poll.ends_at %}
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Ends {{ poll.ends_at.strftime('%m/%d %I:%M %p') }}
+                            </small>
+                            {% else %}
+                            <small class="text-muted">
+                                <i class="fas fa-infinity me-1"></i>
+                                No expiration
+                            </small>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <a href="{{ url_for('view_poll', id=poll.id) }}" class="btn btn-primary btn-sm">
+                                {% if current_user.is_authenticated and poll.is_active %}
+                                <i class="fas fa-vote-yea me-1"></i>Vote
+                                {% else %}
+                                <i class="fas fa-eye me-1"></i>View
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination could be added here -->
+    <div class="text-center mt-4">
+        <p class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            Showing {{ polls|length }} active poll{{ 's' if polls|length != 1 else '' }}
+        </p>
+    </div>
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-poll fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted">No active polls</h4>
+        <p class="text-muted">Be the first to create a poll and get the community's opinion!</p>
+        
+        {% if current_user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{{ url_for('create_poll') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create First Poll
+            </a>
+        </div>
+        {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('login') }}" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt me-2"></i>Login to Create Polls
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh polls every 60 seconds
+setInterval(function() {
+    location.reload();
+}, 60000);
+</script>
+{% endblock %}

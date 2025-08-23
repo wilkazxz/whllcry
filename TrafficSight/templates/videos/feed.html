@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Video Feed - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-video me-2"></i>Video Feed
+        </h2>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('upload_video') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Upload Video
+        </a>
+        {% endif %}
+    </div>
+
+    {% if videos %}
+    <div class="row">
+        {% for video in videos %}
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                {% if video.is_pinned %}
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-thumbtack me-2"></i>Pinned Video
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <!-- Author Info -->
+                    <div class="d-flex align-items-center mb-3">
+                        {% if video.author.profile_image %}
+                        <img src="{{ url_for('static', filename=video.author.profile_image) }}" alt="Profile" class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;">
+                        {% else %}
+                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">
+                                <a href="{{ url_for('view_profile', username=video.author.username) }}" class="text-decoration-none">
+                                    {{ video.author.username }}
+                                    {% if video.author.is_verified %}
+                                    <i class="fas fa-check-circle text-primary ms-1"></i>
+                                    {% endif %}
+                                </a>
+                                {% if video.author.is_online %}
+                                <span class="badge bg-success ms-2">Online</span>
+                                {% else %}
+                                <span class="badge bg-secondary ms-2">Offline</span>
+                                {% endif %}
+                            </h6>
+                            <small class="text-muted">{{ video.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                        </div>
+                        
+                        {% if current_user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('report_content', type='video', id=video.id) }}">
+                                    <i class="fas fa-flag me-2"></i>Report Video
+                                </a></li>
+                                {% if current_user.is_admin %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="pinVideo({{ video.id }})">
+                                    <i class="fas fa-thumbtack me-2"></i>{{ 'Unpin' if video.is_pinned else 'Pin' }}
+                                </a></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deleteVideo({{ video.id }})">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Video Title -->
+                    <h5 class="card-title">{{ video.title }}</h5>
+                    {% if video.description %}
+                    <p class="card-text">{{ video.description }}</p>
+                    {% endif %}
+                    
+                    <!-- Video Player -->
+                    <div class="mb-3">
+                        <video class="w-100 rounded" controls style="max-height: 400px;">
+                            <source src="{{ url_for('static', filename=video.filename) }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <!-- Like/Dislike Buttons -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('like_video', id=video.id, is_like=1) }}" class="btn btn-outline-success btn-sm me-2">
+                                <i class="fas fa-thumbs-up me-1"></i>{{ video.get_likes_count() }}
+                            </a>
+                            <a href="{{ url_for('like_video', id=video.id, is_like=0) }}" class="btn btn-outline-danger btn-sm me-2">
+                                <i class="fas fa-thumbs-down me-1"></i>{{ video.get_dislikes_count() }}
+                            </a>
+                            {% else %}
+                            <span class="badge bg-success me-2">
+                                <i class="fas fa-thumbs-up me-1"></i>{{ video.get_likes_count() }}
+                            </span>
+                            <span class="badge bg-danger me-2">
+                                <i class="fas fa-thumbs-down me-1"></i>{{ video.get_dislikes_count() }}
+                            </span>
+                            {% endif %}
+                            
+                            <span class="text-muted">
+                                <i class="fas fa-comments me-1"></i>{{ video.comments.count() }}
+                            </span>
+                        </div>
+                        
+                        {% if current_user.is_authenticated %}
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#comments-{{ video.id }}">
+                            <i class="fas fa-comment me-1"></i>Comment
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    {% if current_user.is_authenticated %}
+                    <div class="collapse mt-3" id="comments-{{ video.id }}">
+                        <hr>
+                        
+                        <!-- Add Comment Form -->
+                        <form method="POST" action="{{ url_for('add_video_comment', id=video.id) }}" class="mb-3">
+                            <div class="input-group">
+                                <input type="text" name="content" class="form-control" placeholder="Add a comment..." required>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Comments List -->
+                        {% for comment in video.comments.order_by(desc('created_at')).limit(3) %}
+                        <div class="d-flex align-items-start mb-2">
+                            {% if comment.author.profile_image %}
+                            <img src="{{ url_for('static', filename=comment.author.profile_image) }}" alt="Profile" class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
+                            {% else %}
+                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="fas fa-user text-white" style="font-size: 0.8em;"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex-grow-1">
+                                <div class="bg-light rounded p-2">
+                                    <small class="fw-bold">{{ comment.author.username }}</small>
+                                    <p class="mb-0 small">{{ comment.content }}</p>
+                                </div>
+                                <small class="text-muted">{{ comment.created_at.strftime('%B %d at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if video.comments.count() > 3 %}
+                        <div class="text-center">
+                            <small class="text-muted">{{ video.comments.count() - 3 }} more comments...</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-video fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted">No videos yet</h4>
+        <p class="text-muted">Be the first to share a video!</p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('upload_video') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Upload First Video
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Admin functions
+function pinVideo(videoId) {
+    if (confirm('Pin/Unpin this video?')) {
+        // Implement pin video functionality
+        window.location.href = `/admin/pin_video/${videoId}`;
+    }
+}
+
+function deleteVideo(videoId) {
+    if (confirm('Delete this video? This action cannot be undone!')) {
+        // Implement delete video functionality
+        window.location.href = `/admin/delete_video/${videoId}`;
+    }
+}
+
+// Auto-play videos when in viewport (optional)
+document.addEventListener('DOMContentLoaded', function() {
+    const videos = document.querySelectorAll('video');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.play().catch(e => {
+                    // Autoplay might be blocked by browser
+                    console.log('Autoplay blocked:', e);
+                });
+            } else {
+                entry.target.pause();
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    videos.forEach(video => {
+        observer.observe(video);
+    });
+});
+</script>
+{% endblock %}

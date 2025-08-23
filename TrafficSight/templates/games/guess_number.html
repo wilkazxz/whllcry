@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Guess the Number - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Game Header -->
+            <div class="card mb-4">
+                <div class="card-header text-center">
+                    <h3>
+                        <i class="fas fa-dice me-2 text-warning"></i>Guess the Number
+                    </h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-4">
+                            <h5>Attempts</h5>
+                            <span class="badge bg-primary fs-4">{{ attempts }}</span>
+                        </div>
+                        <div class="col-4">
+                            <h5>Range</h5>
+                            <span class="badge bg-info fs-4">1-100</span>
+                        </div>
+                        <div class="col-4">
+                            <h5>Best Score</h5>
+                            <span class="badge bg-warning fs-4">{{ guess_score.score if guess_score else 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guess Form -->
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Make Your Guess!</h4>
+                    <p class="mb-0 text-muted">I'm thinking of a number between 1 and 100</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('submit_guess') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <div class="input-group input-group-lg">
+                                {{ form.guess(class="form-control text-center", placeholder="Enter your guess...", min="1", max="100", autocomplete="off", autofocus=true) }}
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-search me-1"></i>Guess!
+                                </button>
+                            </div>
+                            {% if form.guess.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.guess.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-center">
+                            <small class="text-muted">
+                                Scoring: 100 points - (5 × attempts). Maximum 10 attempts.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Game Info -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Tips & Rules
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>How to Play:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-1">
+                                    <i class="fas fa-arrow-right text-primary me-2"></i>
+                                    Guess a number between 1-100
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-arrow-right text-primary me-2"></i>
+                                    Get hints: "too high" or "too low"
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-arrow-right text-primary me-2"></i>
+                                    Find the number in 10 attempts or less
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Scoring:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-1">
+                                    <i class="fas fa-star text-warning me-2"></i>
+                                    Start with 100 points
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-star text-warning me-2"></i>
+                                    Lose 5 points per attempt
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-star text-warning me-2"></i>
+                                    Fewer attempts = higher score!
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Games -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('games') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Games
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-focus on guess input
+document.addEventListener('DOMContentLoaded', function() {
+    const guessInput = document.getElementById('guess');
+    if (guessInput) {
+        guessInput.focus();
+    }
+});
+
+// Handle Enter key
+document.getElementById('guess').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.target.closest('form').submit();
+    }
+});
+
+// Number input validation
+document.getElementById('guess').addEventListener('input', function(e) {
+    const value = parseInt(e.target.value);
+    if (value < 1 || value > 100) {
+        e.target.setCustomValidity('Please enter a number between 1 and 100');
+    } else {
+        e.target.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}

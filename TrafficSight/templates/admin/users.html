@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-users me-2"></i>User Management
+        </h2>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Admin Panel
+        </a>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>All Users ({{ users|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if users %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Level</th>
+                            <th>Points</th>
+                            <th>Last Seen</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if user.profile_image %}
+                                    <img src="{{ url_for('static', filename=user.profile_image) }}" alt="Profile" class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                        <i class="fas fa-user text-white" style="font-size: 0.8em;"></i>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div>
+                                        <a href="{{ url_for('view_profile', username=user.username) }}" class="text-decoration-none fw-bold">
+                                            {{ user.username }}
+                                        </a>
+                                        {% if user.is_verified %}
+                                        <i class="fas fa-check-circle text-primary ms-1"></i>
+                                        {% endif %}
+                                        {% if user.is_admin %}
+                                        <span class="badge bg-danger ms-1">Admin</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.is_online %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-circle me-1"></i>Online
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-circle me-1"></i>Offline
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">Level {{ user.level }}</span>
+                            </td>
+                            <td>{{ user.points }}</td>
+                            <td>
+                                {% if user.get_last_seen_jakarta() %}
+                                <small>{{ user.get_last_seen_jakarta().strftime('%m/%d %I:%M %p') }} WIB</small>
+                                {% else %}
+                                <small class="text-muted">Never</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ user.created_at.strftime('%m/%d/%Y') }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('view_profile', username=user.username) }}">
+                                                <i class="fas fa-eye me-2"></i>View Profile
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('admin_verify_user', id=user.id) }}">
+                                                <i class="fas fa-{{ 'times' if user.is_verified else 'check' }} me-2"></i>
+                                                {{ 'Unverify' if user.is_verified else 'Verify' }}
+                                            </a>
+                                        </li>
+                                        {% if not user.is_admin %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-warning" href="{{ url_for('admin_reset_password', id=user.id) }}" onclick="return confirm('Reset password for {{ user.username }}?')">
+                                                <i class="fas fa-key me-2"></i>Reset Password
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="{{ url_for('admin_delete_user', id=user.id) }}" onclick="return confirm('Permanently delete {{ user.username }}? This cannot be undone!')">
+                                                <i class="fas fa-trash me-2"></i>Delete User
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No users found</h5>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- User Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">User Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h4 class="text-success">{{ users|selectattr('is_online')|list|length }}</h4>
+                            <small class="text-muted">Online</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-primary">{{ users|selectattr('is_verified')|list|length }}</h4>
+                            <small class="text-muted">Verified</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-warning">{{ users|selectattr('is_admin')|list|length }}</h4>
+                            <small class="text-muted">Admins</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                            <i class="fas fa-sync me-2"></i>Refresh Data
+                        </button>
+                        <a href="{{ url_for('admin_statistics') }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-chart-bar me-2"></i>View Statistics
+                        </a>
+                        <a href="{{ url_for('admin_reports') }}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-flag me-2"></i>View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh every 30 seconds
+setInterval(function() {
+    location.reload();
+}, 30000);
+
+// Search functionality
+function searchUsers() {
+    const input = document.getElementById('userSearch');
+    const filter = input.value.toLowerCase();
+    const table = document.querySelector('table tbody');
+    const rows = table.getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const username = rows[i].getElementsByTagName('td')[0];
+        const email = rows[i].getElementsByTagName('td')[1];
+        
+        if (username && email) {
+            const usernameText = username.textContent || username.innerText;
+            const emailText = email.textContent || email.innerText;
+            
+            if (usernameText.toLowerCase().indexOf(filter) > -1 || 
+                emailText.toLowerCase().indexOf(filter) > -1) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

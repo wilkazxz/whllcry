@@ -1,0 +1,98 @@
+Buatkan project Flask dengan fitur-fitur berikut:
+
+1. Dashboard & Pengunjung:
+   - Setiap kali ada pengunjung baru, jumlah visitor naik +1.
+   - Pengunjung yang tidak login hanya bisa melihat dashboard & postingan.
+   - Pengunjung tidak bisa edit atau menulis apapun tanpa akun.
+
+2. Register & Login:
+   - Pengunjung bisa register akun.
+   - Data user tersimpan di database dan bisa diakses admin.
+   - Admin bisa reset password user jika lupa.
+   - Admin bisa hapus akun user dari admin panel.
+
+3. Status Online/Offline:
+   - Saat login → status ONLINE, last_seen diperbarui.
+   - Saat logout → status OFFLINE, last_seen diperbarui.
+   - Jika idle lebih dari 1 menit → otomatis dianggap OFFLINE.
+   - Badge status ditampilkan (ONLINE hijau, OFFLINE abu-abu).
+   - Di profil user tampilkan "Terakhir online: [tanggal & jam]" (Asia/Jakarta).
+   - Di admin panel tampilkan tabel user dengan status + last_seen.
+
+4. Postingan (Foto + Teks):
+   - User login bisa upload postingan (foto + teks).
+   - User lain bisa melihat postingan.
+   - Admin bisa pin postingan agar selalu di atas feed.
+
+5. Like & Dislike:
+   - Tombol Like & Dislike di setiap postingan.
+   - Tampilkan jumlah total Like/Dislike.
+
+6. Komentar:
+   - User login bisa komentar di postingan.
+   - User non-login hanya bisa lihat komentar.
+   - Komentar berurutan (baru di bawah).
+
+7. Chat:
+   - Ada chat grup global untuk semua user login.
+   - User login bisa kirim pesan.
+   - Fitur chat private (DM) antar user.
+
+8. Profil User:
+   - Setiap user punya halaman profil.
+   - Profil berisi foto profil, bio, daftar postingan & video user.
+   - User bisa edit profil (foto + bio).
+   - Jika user terverifikasi → tampilkan centang biru di samping username.
+
+9. Dark Mode / Light Mode:
+   - Toggle switch di navbar.
+   - Preferensi tema disimpan di database.
+
+10. Report System:
+   - User bisa report postingan atau komentar.
+   - Admin bisa lihat laporan di admin panel.
+   - Admin bisa hapus postingan/komentar melanggar.
+
+11. Statistik Pengguna (Admin Panel):
+   - Grafik Chart.js untuk:
+     - Jumlah user baru per hari.
+     - Jumlah postingan.
+     - Jumlah komentar.
+   - Statistik ditampilkan dalam bentuk grafik garis/batang.
+
+12. Notifikasi:
+   - User dapat notifikasi jika:
+     - Ada komentar di postingannya.
+     - Ada like/dislike di postingannya.
+     - Ada pesan baru (chat grup atau DM).
+   - Notifikasi ditampilkan di ikon lonceng navbar.
+
+13. Upload Video ala TikTok:
+   - User login bisa upload video pendek (mp4/webm/avi, max 50MB).
+   - Video tampil di beranda dalam feed scrollable (mirip FYP TikTok).
+   - Video autoplay saat discroll.
+   - Bisa Like, Komentar, dan Share video.
+   - Profil user menampilkan daftar video.
+   - Ada halaman "Trending Video" untuk video terbanyak like/komen.
+   - Admin bisa hapus/pin video.
+
+14. Hiburan untuk Member:
+   - Mini Games:
+     - Snake Game, Quiz sederhana, Tebak Angka.
+     - Leaderboard skor tersedia.
+   - Sistem Poin & Level:
+     - Poin didapat dari aktivitas (post, komen, like, login harian).
+     - Poin menentukan level user.
+   - Badge / Achievement:
+     - Contoh: First Comment, 100 Likes, Daily Login 7 hari.
+     - Badge muncul di profil user.
+   - Daily Content:
+     - Dashboard tampilkan daily quotes, jokes, atau fakta unik.
+   - Polling / Voting:
+     - User bisa buat polling.
+     - Member lain bisa vote.
+     - Hasil vote real-time.
+   - Ranking Mingguan:
+     - Ranking top member berdasarkan aktivitas.
+   - Event Mingguan:
+     - Postingan terbaik berdasarkan jumlah vote/like.

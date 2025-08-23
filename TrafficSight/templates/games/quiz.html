@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Math Quiz - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Quiz Header -->
+            <div class="card mb-4">
+                <div class="card-header text-center">
+                    <h3>
+                        <i class="fas fa-brain me-2 text-info"></i>Math Quiz
+                    </h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-6">
+                            <h5>Current Score</h5>
+                            <span class="badge bg-primary fs-4">{{ score }}</span>
+                        </div>
+                        <div class="col-6">
+                            <h5>Best Score</h5>
+                            <span class="badge bg-warning fs-4">{{ quiz_score.score if quiz_score else 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Question</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="display-4">{{ question }}</h2>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('quiz_answer') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <div class="input-group input-group-lg">
+                                {{ form.answer(class="form-control text-center", placeholder="Your answer...", autocomplete="off", autofocus=true) }}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-check me-1"></i>Submit
+                                </button>
+                            </div>
+                            {% if form.answer.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.answer.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quiz Info -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>How to Play
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Answer math questions correctly to score points
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Each correct answer gives you 10 points
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            One wrong answer ends the game
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Try to beat your high score!
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Back to Games -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('games') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Games
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-focus on answer input
+document.addEventListener('DOMContentLoaded', function() {
+    const answerInput = document.getElementById('answer');
+    if (answerInput) {
+        answerInput.focus();
+    }
+});
+
+// Handle Enter key
+document.getElementById('answer').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.target.closest('form').submit();
+    }
+});
+</script>
+{% endblock %}

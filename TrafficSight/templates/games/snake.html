@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Snake Game - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Game Header -->
+            <div class="card mb-4">
+                <div class="card-header text-center">
+                    <h3>
+                        <i class="fas fa-snake me-2 text-success"></i>Snake Game
+                    </h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <h5>Score</h5>
+                            <span id="score" class="badge bg-primary fs-4">0</span>
+                        </div>
+                        <div class="col-4">
+                            <h5>High Score</h5>
+                            <span class="badge bg-warning fs-4">{{ snake_score.score if snake_score else 0 }}</span>
+                        </div>
+                        <div class="col-4">
+                            <h5>Status</h5>
+                            <span id="status" class="badge bg-success fs-4">Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Canvas -->
+            <div class="card">
+                <div class="card-body text-center">
+                    <canvas id="gameCanvas" width="400" height="400" style="border: 2px solid #000; background-color: #f8f9fa;"></canvas>
+                    
+                    <div class="mt-3">
+                        <button id="startBtn" class="btn btn-success me-2">
+                            <i class="fas fa-play me-1"></i>Start Game
+                        </button>
+                        <button id="pauseBtn" class="btn btn-warning me-2" disabled>
+                            <i class="fas fa-pause me-1"></i>Pause
+                        </button>
+                        <button id="resetBtn" class="btn btn-danger">
+                            <i class="fas fa-redo me-1"></i>Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-keyboard me-2"></i>Controls
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <i class="fas fa-arrow-up fa-2x text-primary"></i>
+                            <p class="mt-2">↑ or W</p>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-arrow-down fa-2x text-primary"></i>
+                            <p class="mt-2">↓ or S</p>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-arrow-left fa-2x text-primary"></i>
+                            <p class="mt-2">← or A</p>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-arrow-right fa-2x text-primary"></i>
+                            <p class="mt-2">→ or D</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <p class="mb-0">
+                            <strong>How to Play:</strong> Use arrow keys or WASD to control the snake. 
+                            Eat the red food to grow and increase your score. Don't hit the walls or yourself!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Games -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('games') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Games
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/games.js') }}"></script>
+<script>
+// Initialize Snake Game
+document.addEventListener('DOMContentLoaded', function() {
+    initSnakeGame();
+});
+</script>
+{% endblock %}

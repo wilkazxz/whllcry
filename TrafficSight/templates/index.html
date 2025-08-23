@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Home - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="bg-primary text-white rounded p-4 text-center">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-users me-3"></i>Welcome to SocialHub
+                </h1>
+                <p class="lead mb-4">Connect, Share, and Engage with your community</p>
+                
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="p-3">
+                            <i class="fas fa-eye fa-2x mb-2"></i>
+                            <h5>{{ total_visitors }}</h5>
+                            <small>Total Visitors</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3">
+                            <i class="fas fa-users fa-2x mb-2"></i>
+                            <h5>{{ online_users }}</h5>
+                            <small>Online Now</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3">
+                            <i class="fas fa-newspaper fa-2x mb-2"></i>
+                            <h5>{{ posts|length }}</h5>
+                            <small>Recent Posts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3">
+                            <i class="fas fa-clock fa-2x mb-2"></i>
+                            <h5>24/7</h5>
+                            <small>Always Active</small>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if not current_user.is_authenticated %}
+                <div class="mt-4">
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-user-plus me-2"></i>Join Now
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Daily Content -->
+            {% if daily_content %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-{{ 'quote-left' if daily_content.content_type == 'quote' else 'laugh' if daily_content.content_type == 'joke' else 'lightbulb' }} me-2"></i>
+                        Daily {{ daily_content.content_type.title() }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ daily_content.content }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Posts Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-newspaper me-2"></i>Recent Posts
+                </h2>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('create_post') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Post
+                </a>
+                {% endif %}
+            </div>
+
+            {% if posts %}
+                {% for post in posts %}
+                <div class="card mb-4">
+                    {% if post.is_pinned %}
+                    <div class="card-header bg-warning text-dark">
+                        <i class="fas fa-thumbtack me-2"></i>Pinned Post
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            {% if post.author.profile_image %}
+                            <img src="{{ url_for('static', filename=post.author.profile_image) }}" alt="Profile" class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;">
+                            {% else %}
+                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div>
+                                <h6 class="mb-0">
+                                    <a href="{{ url_for('view_profile', username=post.author.username) }}" class="text-decoration-none">
+                                        {{ post.author.username }}
+                                        {% if post.author.is_verified %}
+                                        <i class="fas fa-check-circle text-primary ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+                        
+                        {% if post.image %}
+                        <img src="{{ url_for('static', filename=post.image) }}" alt="Post image" class="img-fluid rounded mb-3" style="max-height: 400px; width: 100%; object-fit: cover;">
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-success me-3">
+                                    <i class="fas fa-thumbs-up me-1"></i>{{ post.get_likes_count() }}
+                                </span>
+                                <span class="text-danger me-3">
+                                    <i class="fas fa-thumbs-down me-1"></i>{{ post.get_dislikes_count() }}
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-comments me-1"></i>{{ post.comments.count() }}
+                                </span>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('view_post', id=post.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                {% if current_user.is_authenticated %}
+                                <div class="btn-group btn-group-sm ms-2" role="group">
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ url_for('report_content', type='post', id=post.id) }}">
+                                            <i class="fas fa-flag me-2"></i>Report
+                                        </a></li>
+                                        {% if current_user.is_admin %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('admin_pin_post', id=post.id) }}">
+                                            <i class="fas fa-thumbtack me-2"></i>{{ 'Unpin' if post.is_pinned else 'Pin' }}
+                                        </a></li>
+                                        <li><a class="dropdown-item text-danger" href="{{ url_for('admin_delete_post', id=post.id) }}" onclick="return confirm('Are you sure?')">
+                                            <i class="fas fa-trash me-2"></i>Delete
+                                        </a></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No posts yet</h5>
+                <p class="text-muted">Be the first to share something!</p>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('create_post') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create First Post
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            {% if current_user.is_authenticated %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-rocket me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_post') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Create Post
+                        </a>
+                        <a href="{{ url_for('upload_video') }}" class="btn btn-info btn-sm">
+                            <i class="fas fa-video me-2"></i>Upload Video
+                        </a>
+                        <a href="{{ url_for('create_poll') }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-poll me-2"></i>Create Poll
+                        </a>
+                        <a href="{{ url_for('global_chat') }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-comments me-2"></i>Join Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Featured Content -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Platform Features
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Share posts with photos
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Upload and watch videos
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Real-time chat system
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Interactive polls & voting
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Mini games & achievements
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Dark/Light theme toggle
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Platform Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="p-2">
+                                <i class="fas fa-eye text-primary fa-2x mb-2"></i>
+                                <h6>{{ total_visitors }}</h6>
+                                <small class="text-muted">Visitors</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="p-2">
+                                <i class="fas fa-users text-success fa-2x mb-2"></i>
+                                <h6>{{ online_users }}</h6>
+                                <small class="text-muted">Online</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
