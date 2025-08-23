@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="error-page">
+                <i class="fas fa-search fa-5x text-muted mb-4"></i>
+                <h1 class="display-1 fw-bold">404</h1>
+                <h2 class="mb-4">Page Not Found</h2>
+                <p class="lead mb-4">
+                    Sorry, the page you're looking for doesn't exist or has been moved.
+                </p>
+                
+                <div class="mb-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-home me-2"></i>Go Home
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Go Back
+                    </button>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-compass me-2"></i>Quick Navigation
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('index') }}" class="text-decoration-none">
+                                            <i class="fas fa-home me-2"></i>Home
+                                        </a>
+                                    </li>
+                                    {% if current_user.is_authenticated %}
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('dashboard') }}" class="text-decoration-none">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('create_post') }}" class="text-decoration-none">
+                                            <i class="fas fa-plus me-2"></i>Create Post
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('login') }}" class="text-decoration-none">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('register') }}" class="text-decoration-none">
+                                            <i class="fas fa-user-plus me-2"></i>Register
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('video_feed') }}" class="text-decoration-none">
+                                            <i class="fas fa-video me-2"></i>Videos
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('polls') }}" class="text-decoration-none">
+                                            <i class="fas fa-poll me-2"></i>Polls
+                                        </a>
+                                    </li>
+                                    {% if current_user.is_authenticated %}
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('games') }}" class="text-decoration-none">
+                                            <i class="fas fa-gamepad me-2"></i>Games
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('global_chat') }}" class="text-decoration-none">
+                                            <i class="fas fa-comments me-2"></i>Chat
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

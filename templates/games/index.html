@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Games - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1>
+            <i class="fas fa-gamepad me-3"></i>Game Center
+        </h1>
+        <p class="lead">Challenge yourself and compete with other members!</p>
+    </div>
+
+    <!-- User's Best Scores -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>Your Best Scores
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <i class="fas fa-snake fa-3x text-success mb-3"></i>
+                                <h4>{{ snake_score.score if snake_score else 0 }}</h4>
+                                <p class="text-muted">Snake Game</p>
+                                {% if snake_score %}
+                                <small class="text-muted">{{ snake_score.created_at.strftime('%B %d, %Y') }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <i class="fas fa-brain fa-3x text-info mb-3"></i>
+                                <h4>{{ quiz_score.score if quiz_score else 0 }}</h4>
+                                <p class="text-muted">Quiz Game</p>
+                                {% if quiz_score %}
+                                <small class="text-muted">{{ quiz_score.created_at.strftime('%B %d, %Y') }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <i class="fas fa-dice fa-3x text-warning mb-3"></i>
+                                <h4>{{ guess_score.score if guess_score else 0 }}</h4>
+                                <p class="text-muted">Number Guessing</p>
+                                {% if guess_score %}
+                                <small class="text-muted">{{ guess_score.created_at.strftime('%B %d, %Y') }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Games List -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-snake fa-4x text-success mb-3"></i>
+                    <h5 class="card-title">Snake Game</h5>
+                    <p class="card-text">Control the snake and eat food to grow. Don't hit the walls or yourself!</p>
+                    <div class="mb-3">
+                        <small class="text-muted">Your Best: <strong>{{ snake_score.score if snake_score else 0 }}</strong></small>
+                    </div>
+                    <a href="{{ url_for('snake_game') }}" class="btn btn-success">
+                        <i class="fas fa-play me-2"></i>Play Snake
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-brain fa-4x text-info mb-3"></i>
+                    <h5 class="card-title">Math Quiz</h5>
+                    <p class="card-text">Test your math skills with quick calculations. Answer correctly to score points!</p>
+                    <div class="mb-3">
+                        <small class="text-muted">Your Best: <strong>{{ quiz_score.score if quiz_score else 0 }}</strong></small>
+                    </div>
+                    <a href="{{ url_for('quiz_game') }}" class="btn btn-info">
+                        <i class="fas fa-play me-2"></i>Start Quiz
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-dice fa-4x text-warning mb-3"></i>
+                    <h5 class="card-title">Guess the Number</h5>
+                    <p class="card-text">Guess the secret number between 1-100. Fewer attempts = higher score!</p>
+                    <div class="mb-3">
+                        <small class="text-muted">Your Best: <strong>{{ guess_score.score if guess_score else 0 }}</strong></small>
+                    </div>
+                    <a href="{{ url_for('guess_number_game') }}" class="btn btn-warning">
+                        <i class="fas fa-play me-2"></i>Start Guessing
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboards -->
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-snake me-2 text-success"></i>Snake Leaders
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if snake_leaders %}
+                        {% for score in snake_leaders %}
+                        <div class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-{% if loop.index == 1 %}warning{% elif loop.index == 2 %}secondary{% elif loop.index == 3 %}warning{% else %}light text-dark{% endif %} me-2">
+                                    {{ loop.index }}
+                                </span>
+                                <a href="{{ url_for('view_profile', username=score.user.username) }}" class="text-decoration-none">
+                                    {{ score.user.username }}
+                                </a>
+                            </div>
+                            <span class="fw-bold">{{ score.score }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-trophy fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No scores yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-brain me-2 text-info"></i>Quiz Leaders
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if quiz_leaders %}
+                        {% for score in quiz_leaders %}
+                        <div class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-{% if loop.index == 1 %}warning{% elif loop.index == 2 %}secondary{% elif loop.index == 3 %}warning{% else %}light text-dark{% endif %} me-2">
+                                    {{ loop.index }}
+                                </span>
+                                <a href="{{ url_for('view_profile', username=score.user.username) }}" class="text-decoration-none">
+                                    {{ score.user.username }}
+                                </a>
+                            </div>
+                            <span class="fw-bold">{{ score.score }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-trophy fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No scores yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-dice me-2 text-warning"></i>Guessing Leaders
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if guess_leaders %}
+                        {% for score in guess_leaders %}
+                        <div class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-{% if loop.index == 1 %}warning{% elif loop.index == 2 %}secondary{% elif loop.index == 3 %}warning{% else %}light text-dark{% endif %} me-2">
+                                    {{ loop.index }}
+                                </span>
+                                <a href="{{ url_for('view_profile', username=score.user.username) }}" class="text-decoration-none">
+                                    {{ score.user.username }}
+                                </a>
+                            </div>
+                            <span class="fw-bold">{{ score.score }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-trophy fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No scores yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

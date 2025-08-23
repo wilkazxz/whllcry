@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Create Poll - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-poll me-2"></i>Create New Poll
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.question.label(class="form-label") }}
+                            {{ form.question(class="form-control", placeholder="What would you like to ask?") }}
+                            {% if form.question.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.question.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Poll Options</label>
+                            
+                            <div class="mb-2">
+                                {{ form.option1(class="form-control", placeholder="Option 1 (required)") }}
+                                {% if form.option1.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.option1.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-2">
+                                {{ form.option2(class="form-control", placeholder="Option 2 (required)") }}
+                                {% if form.option2.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.option2.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-2">
+                                {{ form.option3(class="form-control", placeholder="Option 3 (optional)") }}
+                                {% if form.option3.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.option3.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-2">
+                                {{ form.option4(class="form-control", placeholder="Option 4 (optional)") }}
+                                {% if form.option4.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.option4.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.duration_hours.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.duration_hours(class="form-control", placeholder="24") }}
+                                <span class="input-group-text">hours</span>
+                            </div>
+                            {% if form.duration_hours.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.duration_hours.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Leave empty for permanent poll. Maximum: 168 hours (7 days)
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('polls') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Poll
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Poll Guidelines -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Poll Guidelines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Best Practices:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Keep questions clear and concise
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Provide balanced answer options
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Avoid leading or biased questions
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Consider adding an "Other" option
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Poll Features:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-vote-yea text-primary me-2"></i>
+                                    Real-time vote counting
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock text-info me-2"></i>
+                                    Optional time limits
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-chart-pie text-warning me-2"></i>
+                                    Visual results display
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-users text-secondary me-2"></i>
+                                    Public participation
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Dynamic option addition (future enhancement)
+document.addEventListener('DOMContentLoaded', function() {
+    // Add visual feedback for required fields
+    const requiredFields = document.querySelectorAll('input[required]');
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    });
+    
+    // Character counter for question
+    const questionField = document.getElementById('question');
+    if (questionField) {
+        const maxLength = 500;
+        const counter = document.createElement('div');
+        counter.className = 'form-text text-end';
+        counter.id = 'question-counter';
+        questionField.parentNode.appendChild(counter);
+        
+        function updateCounter() {
+            const remaining = maxLength - questionField.value.length;
+            counter.textContent = `${questionField.value.length}/${maxLength} characters`;
+            counter.className = remaining < 50 ? 'form-text text-end text-danger' : 'form-text text-end text-muted';
+        }
+        
+        questionField.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+});
+</script>
+{% endblock %}

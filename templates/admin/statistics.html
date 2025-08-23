@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-chart-bar me-2"></i>Platform Statistics
+        </h2>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Admin Panel
+        </a>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Activity Over Time (Last 30 Days)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="activityChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Charts -->
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-users me-2"></i>New Users
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="usersChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-newspaper me-2"></i>New Posts
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="postsChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>New Comments
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="commentsChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>Detailed Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h6>User Statistics</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Total Users:</td>
+                                    <td><strong>{{ user_stats|length if user_stats else 0 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>New Users (Last 7 Days):</td>
+                                    <td><strong>{{ user_stats[-7:]|sum(attribute='count') if user_stats else 0 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>New Users (Today):</td>
+                                    <td><strong>{{ user_stats[-1].count if user_stats else 0 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Average per Day:</td>
+                                    <td><strong>{{ "%.1f"|format((user_stats|sum(attribute='count') / user_stats|length) if user_stats else 0) }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <h6>Content Statistics</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Total Posts:</td>
+                                    <td><strong>{{ post_stats|sum(attribute='count') if post_stats else 0 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Comments:</td>
+                                    <td><strong>{{ comment_stats|sum(attribute='count') if comment_stats else 0 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Posts (Last 7 Days):</td>
+                                    <td><strong>{{ post_stats[-7:]|sum(attribute='count') if post_stats else 0 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Comments (Last 7 Days):</td>
+                                    <td><strong>{{ comment_stats[-7:]|sum(attribute='count') if comment_stats else 0 }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Prepare data for charts
+const userStats = {{ user_stats|tojson|safe }};
+const postStats = {{ post_stats|tojson|safe }};
+const commentStats = {{ comment_stats|tojson|safe }};
+
+// Helper function to create date labels
+function createDateLabels(stats) {
+    return stats.map(item => {
+        const date = new Date(item.date);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+}
+
+// Combined Activity Chart
+const activityCtx = document.getElementById('activityChart').getContext('2d');
+const activityChart = new Chart(activityCtx, {
+    type: 'line',
+    data: {
+        labels: createDateLabels(userStats),
+        datasets: [
+            {
+                label: 'New Users',
+                data: userStats.map(item => item.count),
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'New Posts',
+                data: postStats.map(item => item.count),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'New Comments',
+                data: commentStats.map(item => item.count),
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                tension: 0.1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    }
+});
+
+// Users Chart
+const usersCtx = document.getElementById('usersChart').getContext('2d');
+const usersChart = new Chart(usersCtx, {
+    type: 'bar',
+    data: {
+        labels: createDateLabels(userStats),
+        datasets: [{
+            label: 'New Users',
+            data: userStats.map(item => item.count),
+            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Posts Chart
+const postsCtx = document.getElementById('postsChart').getContext('2d');
+const postsChart = new Chart(postsCtx, {
+    type: 'bar',
+    data: {
+        labels: createDateLabels(postStats),
+        datasets: [{
+            label: 'New Posts',
+            data: postStats.map(item => item.count),
+            backgroundColor: 'rgba(75, 192, 192, 0.8)',
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Comments Chart
+const commentsCtx = document.getElementById('commentsChart').getContext('2d');
+const commentsChart = new Chart(commentsCtx, {
+    type: 'bar',
+    data: {
+        labels: createDateLabels(commentStats),
+        datasets: [{
+            label: 'New Comments',
+            data: commentStats.map(item => item.count),
+            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

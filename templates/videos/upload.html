@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Video - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-video me-2"></i>Upload Video
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control", placeholder="Enter video title...") }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.title.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="3", placeholder="Describe your video...") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.description.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.video.label(class="form-label") }}
+                            {{ form.video(class="form-control", id="video-input") }}
+                            {% if form.video.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.video.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Supported formats: MP4, WebM, AVI. Maximum file size: 50MB
+                            </div>
+                        </div>
+                        
+                        <!-- Video Preview -->
+                        <div id="video-preview" class="mb-3" style="display: none;">
+                            <label class="form-label">Preview:</label>
+                            <video id="preview-player" class="w-100 rounded" controls style="max-height: 300px;">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        
+                        <!-- Upload Progress -->
+                        <div id="upload-progress" class="mb-3" style="display: none;">
+                            <label class="form-label">Uploading...</label>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('video_feed') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="upload-btn">
+                                <i class="fas fa-upload me-2"></i>Upload Video
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Upload Guidelines -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Upload Guidelines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Video Requirements:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Maximum file size: 50MB
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Supported formats: MP4, WebM, AVI
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Recommended resolution: 1080p or lower
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Duration: Keep it engaging and concise
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Content Guidelines:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-heart text-danger me-2"></i>
+                                    Keep content family-friendly
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-heart text-danger me-2"></i>
+                                    No spam or misleading content
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-heart text-danger me-2"></i>
+                                    Respect copyright and intellectual property
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-heart text-danger me-2"></i>
+                                    Be respectful to the community
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Video preview functionality
+document.getElementById('video-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('video-preview');
+    const player = document.getElementById('preview-player');
+    
+    if (file) {
+        // Check file size (50MB limit)
+        if (file.size > 50 * 1024 * 1024) {
+            alert('File size exceeds 50MB limit. Please choose a smaller file.');
+            e.target.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+        
+        // Check file type
+        const allowedTypes = ['video/mp4', 'video/webm', 'video/avi'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid video file (MP4, WebM, or AVI).');
+            e.target.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+        
+        // Create video preview
+        const url = URL.createObjectURL(file);
+        player.src = url;
+        preview.style.display = 'block';
+        
+        // Clean up URL when video loads
+        player.addEventListener('loadeddata', function() {
+            URL.revokeObjectURL(url);
+        });
+    } else {
+        preview.style.display = 'none';
+    }
+});
+
+// Upload progress simulation (you can replace with actual progress tracking)
+document.querySelector('form').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('video-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const progressDiv = document.getElementById('upload-progress');
+    const progressBar = progressDiv.querySelector('.progress-bar');
+    
+    if (fileInput.files.length > 0) {
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+        progressDiv.style.display = 'block';
+        
+        // Simulate upload progress
+        let progress = 0;
+        const interval = setInterval(function() {
+            progress += Math.random() * 15;
+            if (progress > 90) {
+                progress = 90;
+            }
+            progressBar.style.width = progress + '%';
+            
+            if (progress >= 90) {
+                clearInterval(interval);
+                progressBar.textContent = 'Processing...';
+            }
+        }, 200);
+    }
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const title = document.getElementById('title').value.trim();
+    const video = document.getElementById('video-input').files[0];
+    
+    if (!title) {
+        alert('Please enter a video title.');
+        e.preventDefault();
+        return;
+    }
+    
+    if (!video) {
+        alert('Please select a video file to upload.');
+        e.preventDefault();
+        return;
+    }
+});
+</script>
+{% endblock %}

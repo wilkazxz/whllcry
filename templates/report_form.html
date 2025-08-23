@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Report Content - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-flag me-2"></i>Report Content
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Reporting {{ type|title }}:</strong> Please help us maintain a safe community by reporting inappropriate content.
+                    </div>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.reason.label(class="form-label") }}
+                            {{ form.reason(class="form-select") }}
+                            {% if form.reason.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.reason.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="4", placeholder="Please provide additional details about why you're reporting this content...") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.description.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                The more details you provide, the better we can review your report.
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-shield-alt me-2"></i>What happens next?</h6>
+                            <ul class="mb-0">
+                                <li>Our moderation team will review your report</li>
+                                <li>Appropriate action will be taken if violations are found</li>
+                                <li>Your report will remain anonymous</li>
+                                <li>You may receive updates on the status of your report</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-flag me-2"></i>Submit Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Report Guidelines -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Reporting Guidelines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Report for:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-1">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Spam or unwanted content
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Harassment or bullying
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Inappropriate or offensive material
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    False or misleading information
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Don't report for:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Different opinions or viewpoints
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Content you simply dislike
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Minor disagreements
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Content that follows guidelines
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">
+                            <strong>Remember:</strong> False reports may result in action against your account. 
+                            Please only report content that genuinely violates our community guidelines.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Form validation and user experience improvements
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const reasonSelect = document.getElementById('reason');
+    const descriptionTextarea = document.getElementById('description');
+    
+    // Show additional guidance based on selected reason
+    reasonSelect.addEventListener('change', function() {
+        const reason = this.value;
+        let placeholder = 'Please provide additional details about why you\'re reporting this content...';
+        
+        switch(reason) {
+            case 'spam':
+                placeholder = 'Describe why you think this is spam (e.g., repetitive content, irrelevant links, etc.)';
+                break;
+            case 'harassment':
+                placeholder = 'Explain how this content constitutes harassment or bullying behavior';
+                break;
+            case 'inappropriate':
+                placeholder = 'Describe what makes this content inappropriate or offensive';
+                break;
+            case 'fake':
+                placeholder = 'Explain why you believe this information is false or misleading';
+                break;
+            case 'other':
+                placeholder = 'Please describe the issue with this content in detail';
+                break;
+        }
+        
+        descriptionTextarea.placeholder = placeholder;
+    });
+    
+    // Character counter
+    const maxLength = 500;
+    const counter = document.createElement('div');
+    counter.className = 'form-text text-end';
+    counter.id = 'description-counter';
+    descriptionTextarea.parentNode.appendChild(counter);
+    
+    function updateCounter() {
+        const remaining = maxLength - descriptionTextarea.value.length;
+        counter.textContent = `${descriptionTextarea.value.length}/${maxLength} characters`;
+        counter.className = remaining < 50 ? 'form-text text-end text-danger' : 'form-text text-end text-muted';
+    }
+    
+    descriptionTextarea.addEventListener('input', updateCounter);
+    updateCounter();
+    
+    // Form submission confirmation
+    form.addEventListener('submit', function(e) {
+        if (!confirm('Submit this report? Our moderation team will review it as soon as possible.')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

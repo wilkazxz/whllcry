@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Reports Management - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-flag me-2"></i>Reports Management
+        </h2>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Admin Panel
+        </a>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>All Reports ({{ reports|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if reports %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Reporter</th>
+                            <th>Type</th>
+                            <th>Reason</th>
+                            <th>Content</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr class="{% if report.status == 'pending' %}table-warning{% elif report.status == 'resolved' %}table-success{% else %}table-secondary{% endif %}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if report.reporter.profile_image %}
+                                    <img src="{{ url_for('static', filename=report.reporter.profile_image) }}" alt="Profile" class="rounded-circle me-2" width="25" height="25" style="object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 25px; height: 25px;">
+                                        <i class="fas fa-user text-white" style="font-size: 0.7em;"></i>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <a href="{{ url_for('view_profile', username=report.reporter.username) }}" class="text-decoration-none">
+                                        {{ report.reporter.username }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                {% if report.post_id %}
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-newspaper me-1"></i>Post
+                                </span>
+                                {% elif report.comment_id %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-comment me-1"></i>Comment
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ report.reason }}</span>
+                            </td>
+                            <td>
+                                {% if report.post %}
+                                <a href="{{ url_for('view_post', id=report.post.id) }}" class="text-decoration-none">
+                                    "{{ report.post.title[:30] }}{% if report.post.title|length > 30 %}...{% endif %}"
+                                </a>
+                                {% elif report.comment %}
+                                <span class="text-muted">
+                                    "{{ report.comment.content[:30] }}{% if report.comment.content|length > 30 %}...{% endif %}"
+                                </span>
+                                {% endif %}
+                                
+                                {% if report.description %}
+                                <br><small class="text-muted">{{ report.description[:50] }}{% if report.description|length > 50 %}...{% endif %}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report.status == 'pending' %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-clock me-1"></i>Pending
+                                </span>
+                                {% elif report.status == 'resolved' %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Resolved
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-times me-1"></i>Dismissed
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ report.created_at.strftime('%m/%d/%Y %I:%M %p') }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    {% if report.status == 'pending' %}
+                                    <a href="{{ url_for('admin_resolve_report', id=report.id) }}" class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% if report.post %}
+                                    <a href="{{ url_for('view_post', id=report.post.id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% if report.post %}
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('view_post', id=report.post.id) }}">
+                                                <i class="fas fa-eye me-2"></i>View Post
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="{{ url_for('admin_delete_post', id=report.post.id) }}" onclick="return confirm('Delete this post?')">
+                                                <i class="fas fa-trash me-2"></i>Delete Post
+                                            </a>
+                                        </li>
+                                        {% elif report.comment %}
+                                        <li>
+                                            <span class="dropdown-item-text">
+                                                <i class="fas fa-comment me-2"></i>Comment Report
+                                            </span>
+                                        </li>
+                                        {% endif %}
+                                        {% if report.status == 'pending' %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-success" href="{{ url_for('admin_resolve_report', id=report.id) }}">
+                                                <i class="fas fa-check me-2"></i>Mark Resolved
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-flag fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No reports found</h5>
+                <p class="text-muted">No content has been reported yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Report Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h4>{{ reports|selectattr('status', 'equalto', 'pending')|list|length }}</h4>
+                    <small class="text-muted">Pending Reports</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-check fa-2x text-success mb-2"></i>
+                    <h4>{{ reports|selectattr('status', 'equalto', 'resolved')|list|length }}</h4>
+                    <small class="text-muted">Resolved Reports</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-list fa-2x text-info mb-2"></i>
+                    <h4>{{ reports|length }}</h4>
+                    <small class="text-muted">Total Reports</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh every 30 seconds
+setInterval(function() {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Access Forbidden - SocialHub{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="error-page">
+                <i class="fas fa-lock fa-5x text-danger mb-4"></i>
+                <h1 class="display-1 fw-bold text-danger">403</h1>
+                <h2 class="mb-4">Access Forbidden</h2>
+                <p class="lead mb-4">
+                    You don't have permission to access this resource.
+                </p>
+                
+                {% if not current_user.is_authenticated %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This content requires you to be logged in. Please log in to continue.
+                </div>
+                
+                <div class="mb-4">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    You don't have the required permissions to access this page.
+                </div>
+                
+                <div class="mb-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-home me-2"></i>Go Home
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Go Back
+                    </button>
+                </div>
+                {% endif %}
+                
+                <!-- Help Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>Need Help?
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">This error can occur for several reasons:</p>
+                        <ul class="list-unstyled text-start">
+                            <li class="mb-2">
+                                <i class="fas fa-user-slash text-warning me-2"></i>
+                                You're not logged in (for member-only content)
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-shield-alt text-danger me-2"></i>
+                                You don't have admin privileges (for admin-only content)
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-ban text-muted me-2"></i>
+                                The content has restricted access
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-link text-info me-2"></i>
+                                The link you followed may be incorrect
+                            </li>
+                        </ul>
+                        
+                        {% if current_user.is_authenticated %}
+                        <hr>
+                        <p class="mb-0">
+                            <strong>Logged in as:</strong> {{ current_user.username }}
+                            {% if current_user.is_admin %}
+                            <span class="badge bg-danger ms-1">Admin</span>
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
